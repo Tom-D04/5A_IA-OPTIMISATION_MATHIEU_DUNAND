@@ -1,5 +1,6 @@
 import librosa
 import numpy as np
+from transformers import pipeline
 
 def analyze_music(path):
     print(f"Analyse tempo & clé de {path}")
@@ -12,11 +13,19 @@ def analyze_music(path):
     keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
     key = keys[np.argmax(np.mean(chroma, axis=1))]
     
+    # Utilisation du modèle MIT/AST pour la classification des genres et des instruments présents
+    classifier = pipeline("audio-classification", model="MIT/ast-finetuned-audioset-10-10-0.4593")
+    results = classifier(path, top_k=50)
+    print("Genres et instruments détectés :")
+    for result in results:
+        print(f"{result['label']}: {result['score']:.4f}") 
+        
+
     return {'bpm': bpm, 'key': key}
 
 if __name__ == "__main__":
     import sys
-    musique = "projet/audio/musique.mp3"
+    musique = "project/audio/musique.mp3"
     results = analyze_music(musique)
 
     print(f"Tempo: {results['bpm']} BPM")
