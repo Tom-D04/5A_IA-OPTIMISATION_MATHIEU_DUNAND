@@ -3,7 +3,7 @@ import numpy as np
 from transformers import pipeline
 
 # GENRES MUSICAUX
-GENRE = {
+GENRES = {
     'electronic': [
         'electronic music', 'house music', 'techno', 'dubstep', 'electro',
         'drum and bass', 'electronica', 'electronic dance music', 'ambient music',
@@ -124,6 +124,7 @@ def analyze_music(path):
     classifier = pipeline("audio-classification", model="MIT/ast-finetuned-audioset-10-10-0.4593")
     results = classifier(path, top_k=50)
     # print("Résultats bruts de la classification :", results)
+    print([(r['label'], round(r['score'], 3)) for r in results[:15]])
     
     # Tri et vérification des sous-genres dominants
     sous_genres = []
@@ -146,6 +147,28 @@ def analyze_music(path):
             'sous_genres': sous_genres,
             'instruments': instruments
         }
+
+def map_to_genre(results, genres=GENRES):
+    genres_detected = {}
+    
+    for item in results:
+        label = item['label'].lower()
+        score = item['score']
+        
+        # Pour chaque genre, vérifier si un des sous-genres correspond au label détecté
+        for genre, subgenres in genres.items():    
+            for subgenre in subgenres:
+                if subgenre in label:
+                    # Addition de tous les scores de sous-genres pour un même genre ou ajout du nouveau genre détecté
+                    if genre not in genres_detected:
+                        genres_detected[genre] = round(score, 4)
+                    elif score > genres_detected[genre]:
+                        genres_detected[genre] += round(score, 4)
+
+                    break 
+
+    return genres_detected
+
 
 if __name__ == "__main__":
     import sys
