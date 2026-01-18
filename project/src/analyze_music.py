@@ -110,7 +110,7 @@ ALL_INSTRUMENTS = [
 ]
 
 def analyze_music(path):
-    print(f"Analyse tempo & clé de {path}")
+    print(f"Analyse de {path}")
     y, sr = librosa.load(path, sr=16000)
 
     tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
@@ -123,8 +123,8 @@ def analyze_music(path):
     # Utilisation du modèle MIT/AST pour la classification des genres et des instruments présents
     classifier = pipeline("audio-classification", model="MIT/ast-finetuned-audioset-10-10-0.4593")
     results = classifier(path, top_k=50)
-    print("Genres et instruments détectés :")
-
+    # print("Résultats bruts de la classification :", results)
+    
     # Tri et vérification des sous-genres dominants
     sous_genres = []
     for result in results:
@@ -143,5 +143,6 @@ if __name__ == "__main__":
     musique = "project/audio/musique.mp3"
     results = analyze_music(musique)
 
+    print(f"Sous-genres dominants détectés : {', '.join(results['sous_genres'])}")
     print(f"Tempo: {results['bpm']} BPM")
     print(f"Tonalite: {results['key']}")
