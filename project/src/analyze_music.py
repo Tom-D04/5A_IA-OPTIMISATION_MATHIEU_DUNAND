@@ -141,14 +141,16 @@ def analyze_music(path):
             instruments.append(r['label'])
         if len(instruments) >= 10:
             break
+    genres_detected = map_to_genre(results, genres=GENRES, threshold=0.01)
     
     return {'bpm': bpm,
             'key': key,
             'sous_genres': sous_genres,
-            'instruments': instruments
+            'instruments': instruments,
+            'genres_detected': genres_detected
         }
 
-def map_to_genre(results, genres=GENRES):
+def map_to_genre(results, genres=GENRES, threshold=0.01):
     genres_detected = {}
     
     for item in results:
@@ -162,22 +164,28 @@ def map_to_genre(results, genres=GENRES):
                     # Addition de tous les scores de sous-genres pour un même genre ou ajout du nouveau genre détecté
                     if genre not in genres_detected:
                         genres_detected[genre] = round(score, 4)
-                    elif score > genres_detected[genre]:
+                    else:
                         genres_detected[genre] += round(score, 4)
 
                     break 
-
-    return genres_detected
+                
+    # Filtrer les scores trop faibles
+    result = {}
+    for category, score in genres_detected.items():
+        if score >= threshold:
+            result[category] = score
+            
+    return result
 
 
 if __name__ == "__main__":
-    import sys
     musique = "project/audio/musique.mp3"
     results = analyze_music(musique)
 
     print(f"Tempo: {results['bpm']} BPM")
     print(f"Tonalite: {results['key']}\n")
 
+    print(f"Genre dominant détecté : {list(results['genres_detected'].keys())[0]}, score : {list(results['genres_detected'].values())[0]}")
+    
     print(f"Sous-genres dominants détectés : {', '.join(results['sous_genres'])}")
-
     print(f"Instruments détectés : {', '.join(results['instruments'])}")
