@@ -124,7 +124,7 @@ def analyze_music(path):
     classifier = pipeline("audio-classification", model="MIT/ast-finetuned-audioset-10-10-0.4593")
     results = classifier(path, top_k=50)
     # print("Résultats bruts de la classification :", results)
-    print([(r['label'], round(r['score'], 3)) for r in results[:15]])
+    # print([(r['label'], round(r['score'], 3)) for r in results[:15]])
     
     # Tri et vérification des sous-genres dominants
     sous_genres = []
