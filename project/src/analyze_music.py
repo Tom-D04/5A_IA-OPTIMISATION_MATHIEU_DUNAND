@@ -132,10 +132,19 @@ def analyze_music(path):
             sous_genres.append(result['label'])
         if len(sous_genres) >= 5:
             break
-
+    
+    # Instruments detectés
+    instruments = []
+    for r in results:
+        if r['label'] in ALL_INSTRUMENTS and r['label'] not in instruments:
+            instruments.append(r['label'])
+        if len(instruments) >= 10:
+            break
+    
     return {'bpm': bpm,
             'key': key,
-            'sous_genres': sous_genres
+            'sous_genres': sous_genres,
+            'instruments': instruments
         }
 
 if __name__ == "__main__":
@@ -143,6 +152,9 @@ if __name__ == "__main__":
     musique = "project/audio/musique.mp3"
     results = analyze_music(musique)
 
-    print(f"Sous-genres dominants détectés : {', '.join(results['sous_genres'])}")
     print(f"Tempo: {results['bpm']} BPM")
-    print(f"Tonalite: {results['key']}")
+    print(f"Tonalite: {results['key']}\n")
+
+    print(f"Sous-genres dominants détectés : {', '.join(results['sous_genres'])}")
+
+    print(f"Instruments détectés : {', '.join(results['instruments'])}")
