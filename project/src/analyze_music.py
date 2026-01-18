@@ -124,11 +124,19 @@ def analyze_music(path):
     classifier = pipeline("audio-classification", model="MIT/ast-finetuned-audioset-10-10-0.4593")
     results = classifier(path, top_k=50)
     print("Genres et instruments détectés :")
-    for result in results:
-        print(f"{result['label']}: {result['score']:.4f}") 
-        
 
-    return {'bpm': bpm, 'key': key}
+    # Tri et vérification des sous-genres dominants
+    sous_genres = []
+    for result in results:
+        if result['label'] in ALL_MUSIC_STYLES and result['label'] not in sous_genres:
+            sous_genres.append(result['label'])
+        if len(sous_genres) >= 5:
+            break
+
+    return {'bpm': bpm,
+            'key': key,
+            'sous_genres': sous_genres
+        }
 
 if __name__ == "__main__":
     import sys
